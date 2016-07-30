@@ -7,6 +7,12 @@ install:
 	azure config mode arm
 	npm install yamlxjson -g
 
+install-dcos:
+	pip install dcoscli
+	dcos config set core.reporting true
+	dcos config set core.dcos_url http://localhost:8080/
+	dcos config set core.timeout 5
+
 group:
 	azure group create -n $(RESOURCE_GROUP) -l "West Europe"
 
@@ -36,3 +42,9 @@ ssh:
 
 tunel:
 	ssh -i ops_rsa ops@play-with-acs-master.westeurope.cloudapp.azure.com -A -p 2200 -L 8080:localhost:80
+
+# Application commands...
+
+apps-play-deploy:
+	dcos marathon app remove play
+	dcos marathon app add ./apps/play.json
