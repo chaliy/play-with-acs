@@ -1,0 +1,53 @@
+$schema: "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
+contentVersion: "1.0.0.0"
+parameters:
+  ssh_public_key:
+    type: "string"
+
+variables:
+  dns_name: "play-with-acs"
+  admin_user_name: "ops"
+  agent_count: 1
+  agent_dns_name: "[concat(variables('dns_name'),'-agents')]"
+  agentVMSize: "Standard_D2"
+  master_count: 1 # 1 | 3 | 5
+  master_dns_name: "[concat(variables('dns_name'),'-master')]"
+  orchestrator_type: DCOS # DCOS | Swarm
+  ssh_public_key: "[parameters('ssh_public_key')]"
+  containerservice_name: "[concat('containerservice-',resourceGroup().name)]"
+
+resources:
+  -
+    type: "Microsoft.ContainerService/containerServices"
+    name: "[variables('containerservice_name')]"
+    properties:
+      orchestratorProfile:
+        orchestratorType: "[variables('orchestrator_type')]"
+      masterProfile:
+        count: "[variables('master_count')]"
+        dnsPrefix: "[variables('master_dns_name')]"
+      agentPoolProfiles:
+        -
+          name: "agentpools"
+          count: "[variables('agent_count')]"
+          vmSize: "Standard_D2"
+          dnsPrefix: "[variables('agent_dns_name')]"
+      linuxProfile:
+        adminUsername: "[variables('admin_user_name')]"
+        ssh:
+          publicKeys:
+            -
+              keyData: "[variables('ssh_public_key')]"
+    apiVersion: "2016-03-30"
+    location: "[resourceGroup().location]"
+
+outputs:
+  masterFQDN:
+    type: "string"
+    value: "[reference(concat('Microsoft.ContainerService/containerServices/', variables('containerservice_name'))).masterProfile.fqdn]"
+  sshMaster0:
+    type: "string"
+    value: "[concat('ssh ', variables('admin_user_name'), '@', reference(concat('Microsoft.ContainerService/containerServices/', variables('containerservice_name'))).masterProfile.fqdn, ' -A -p 2200')]"
+  agentFQDN:
+    type: "string"
+    value: "[reference(concat('Microsoft.ContainerService/containerServices/', variables('containerservice_name'))).agentPoolProfiles[0].fqdn]"
