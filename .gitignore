@@ -42,3 +42,5 @@ azuredeploy.parameters.json
 
 ops_rsa
 ops_rsa.pub
+
+registry.marathon.mesos.*

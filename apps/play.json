@@ -4,7 +4,7 @@
   "mem": 32.0,
   "container": {
     "docker": {
-      "image": "dockercloud/hello-world",
+      "image": "registry.marathon.mesos:5000/hello-world",
       "network": "BRIDGE",
       "portMappings": [
         { "containerPort": 80, "hostPort": 8080, "servicePort": 8080 }

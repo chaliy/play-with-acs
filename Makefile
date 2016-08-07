@@ -41,10 +41,20 @@ ssh:
 	ssh -i ops_rsa ops@play-with-acs-master.westeurope.cloudapp.azure.com -A -p 2200
 
 tunel:
-	ssh -i ops_rsa ops@play-with-acs-master.westeurope.cloudapp.azure.com -A -p 2200 -L 8080:localhost:80
+	ssh -i ops_rsa ops@play-with-acs-master.westeurope.cloudapp.azure.com -A -p 2200 -L 8080:localhost:80 -L 5000:registry.marathon.mesos:5000
+
+registry-certs:
+	openssl req -newkey rsa:4096 -nodes -sha256 -keyout registry.marathon.mesos.key -x509 -days 365 -out registry.marathon.mesos.crt
+
+registry-certs-deploy:
+	scp -i ops_rsa -P 2200 ./registry.marathon.mesos.* ops@play-with-acs-master.westeurope.cloudapp.azure.com:.
+
+registry-deploy:
+	dcos marathon app add ./apps/registry.json
+
+registry-destroy:
+	dcos marathon app remove registry
 
 # Application commands...
-
 apps-play-deploy:
-	dcos marathon app remove play
 	dcos marathon app add ./apps/play.json

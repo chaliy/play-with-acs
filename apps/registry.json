@@ -1,0 +1,34 @@
+{
+  "id": "registry",
+  "instances": 1,
+  "cpus": 0.5,
+  "mem": 1024,
+  "disk": 128,
+  "container": {
+    "docker": {
+      "image": "registry:latest",
+      "network": "BRIDGE",
+      "parameters": [],
+      "portMappings": [
+        {
+          "containerPort": 5000,
+          "hostPort": 5000,
+          "protocol": "tcp",
+          "servicePort": 5000
+        }
+      ]
+    },
+    "volumes": [
+      {
+        "hostPath": "/local/path/to/store/packages",
+        "containerPath": "/storage",
+        "mode": "RW"
+      }
+    ]
+  },
+  "env": {
+    "SETTINGS_FLAVOR": "local",
+    "STORAGE_PATH": "/storage"
+  },
+  "ports": [0]
+}
